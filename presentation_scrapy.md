@@ -48,7 +48,7 @@ But for a well organized job, start creating a folder that will contain your sra
 
 `mkdir folder_name`
 
-We will create a folder named crapy_test and access it by typing:
+We will create a folder named crapy_project and access it by typing:
 
 ```
 192:~ sogbedouno$ mkdir crapy_project
@@ -67,11 +67,11 @@ In general under **Mac Os, Windows and Linux** the command to create a virtual e
 
 ###### Activate the virtual environment
 
-Now that our virtual environment is created in the crapy_test folder, we will activate it.
+Now that our virtual environment is created in the crapy_project folder, we will activate it.
 
-* Acceder à l'environnement env dans le dossier scrapy_test
+* Acceder à l'environnement env dans le dossier scrapy_project
 
-  ```
+  ```apache
   192:crapy_project boubadiop$ cd env/
   192:env sogbedouno$ ls
   bin		include		lib		pyvenv.cfg
@@ -79,15 +79,150 @@ Now that our virtual environment is created in the crapy_test folder, we will ac
   ```
 * Activate the virtual environment
 
-  ```
+  ```apache
   192:env sogbedouno$ source bin/activate
   (env) 192:env sogbedouno$
   ```
 
-**###### Install Scrapy in our virtual environment**
+###### Install Crapy in your virtual environment
+
+`(env) 192:env boubadiop$ pip install scrapy`
+
+To check that scrapy has been installed you can type in your command prompt `pip list`.
+
+```apache
+(env) 192:env sogbedouno$ pip list
+Package            Version
+------------------ ---------
+attrs              22.2.0
+Automat            22.10.0
+certifi            2022.12.7
+cffi               1.15.1
+charset-normalizer 3.0.1
+constantly         15.1.0
+cryptography       39.0.2
+cssselect          1.2.0
+filelock           3.9.0
+hyperlink          21.0.0
+idna               3.4
+incremental        22.10.0
+itemadapter        0.7.0
+itemloaders        1.0.6
+jmespath           1.0.1
+lxml               4.9.2
+packaging          23.0
+parsel             1.7.0
+pip                22.0.4
+Protego            0.2.1
+pyasn1             0.4.8
+pyasn1-modules     0.2.8
+pycparser          2.21
+PyDispatcher       2.0.7
+pyOpenSSL          23.0.0
+queuelib           1.6.2
+requests           2.28.2
+requests-file      1.5.1
+Scrapy             2.8.0
+service-identity   21.1.0
+setuptools         58.1.0
+six                1.16.0
+tldextract         3.4.0
+Twisted            22.10.0
+typing_extensions  4.5.0
+urllib3            1.26.14
+w3lib              2.1.1
+zope.interface     5.5.2
+```
+
+### Step 2: Setup Our Scrapy Project
+
+Now that we have our environment setup, we can get onto the fun stuff. Building our first Scrapy spider!.
+
+###### Creating Our Scrapy Project
+
+The first thing we need to do is create our Scrapy project. This project will hold all the code for our scrapers.
+
+The command to create your scrapy project is:
+
+`scrapy startproject <project_name>`
+
+So in this case, as we're going to be scraping a chocolate website we will call our project chocolatescraper. But you can use any project name you would like.
+
+`scrapy startproject chocolatescraper`
+
+###### Understanding Scrapy Project Structure
+
+To help you understand what we just did, and how Scrapy structures its projects, let’s take a break for a second.
+
+First, we're going to see what the `scrapy startproject chocolatescraper` just did.
+
+Enter the following commands into your command line:
+
+```apache
+(env) 192:env sogbedouno$ cd chocolatescraper/
+tree
+```
+
+You should see something like this:
+
+```apache
+├── scrapy.cfg
+└── chocolatescraper
+    ├── __init__.py
+    ├── items.py
+    ├── middlewares.py
+    ├── pipelines.py
+    ├── settings.py
+    └── spiders
+        └── __init__.py
+```
+
+When we ran the command scrapy startproject chocolatescraper, Scrapy automatically generated a model project to use.
+
+We will not use most of these files in this project but we will give a quick explanation of each because each has a specific purpose:
+
+* **settings.py** is where all your project settings are contained, like activating pipelines, middlewares etc. Here you can change the delays, concurrency, and lots more things.
+* **items.py** is a model for the extracted data. You can define a custom model (like a ProductItem) that will inherit the Scrapy Item class and contain your scraped data.
+* **pipelines.py** is where the item yielded by the spider gets passed, it’s mostly used to clean the text and connect to file outputs or databases (CSV, JSON SQL, etc).
+* **middlewares.py** is useful when you want to modify how the request is made and scrapy handles the response.
+* **scrapy.cfg** is a configuration file to change some deployment settings, etc.
+
+### Step 3: Creating Our Spider
+
+Okay, we’ve created the overall structure of the project. Now we’re going to create our spider that will scrape.
+
+Scrapy provides a number of different types of spiders, however, in this presentation we will cover the most common, generic spider. Some of the most common are:
+
+* **Spider**: Takes a list of start_urls and scrapes each one with a `parse` method.
+* **CrawlSpider**:  Designed to crawl a full website by following any links it finds.
+* **SitemapSpider**:  Designed to extract URLs from a sitemap
+
+To create a new generic spider, simply run the **genspider** command:
+
+`sogbedouno$ scrapy genspider chocolatespider chocolate.co.uk`
+
+A new spider will now have been added to your `spiders` folder, and it should look like this:
+
+```apache
+import scrapy
 
 
+class ChocolatespiderSpider(scrapy.Spider):
+    name = "chocolatespider"
+    allowed_domains = ["chocolate.co.uk"]
+    start_urls = ["http://chocolate.co.uk/"]
 
+    def parse(self, response):
+        pass
+
+```
+
+Here we see that the `genspider` command has created a template spider for us to use in the form of a `Spider` class. This spider class contains:
+
+* **name**: a class attribute that gives a name to the spider. We will use this when running our spider later `scrapy crawl <spider_name>`.
+* **allowed_domains**: a class attribute that tells Scrapy that it should only ever scrape pages of the `chocolate.co.uk` domain. This prevents the spider going rouge and scraping lots of websites. This is optional.
+* **start_urls**: a class attribute that tells Scrapy the first url it should scrape. We will be changing this in a bit.
+* **parse**: the `parse` function is called after a response has been recieved from the target website.
 
 
 <pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar"><br class="Apple-interchange-newline"/></pre>
