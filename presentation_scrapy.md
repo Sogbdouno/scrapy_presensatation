@@ -224,5 +224,272 @@ Here we see that the `genspider` command has created a template spider for us to
 * **start_urls**: a class attribute that tells Scrapy the first url it should scrape. We will be changing this in a bit.
 * **parse**: the `parse` function is called after a response has been recieved from the target website.
 
+To start using this Spider we will have to do two things:
 
-<pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar"><br class="Apple-interchange-newline"/></pre>
+1. Change the `start_urls` to the url we want to scrape [https://www.chocolate.co.uk/collections/all](https://www.chocolate.co.uk/collections/all).
+2. Insert our parsing code into the `parse` function.
+
+### Step 4: Update Start Urls
+
+This is pretty easy, we just need to replace the url in the `start_urls` array:
+
+```apache
+import scrapy
+
+class ChocolatespiderSpider(scrapy.Spider):
+    name = "chocolatespider"
+    allowed_domains = ["chocolate.co.uk"]
+    start_urls = ["https://www.chocolate.co.uk/collections/all."]
+
+    def parse(self, response):
+        pass
+
+```
+
+Next, we need to create our CSS selectors to parse the data we want from the page. To do this, we will use Scrapy Shell.
+
+### Step 5: Scrapy Shell: Finding Our Css Selectors
+
+To extract data from an HTML page, we must use XPath or CSS selectors to tell Scrapy where the data is in the page. The XPath and CSS selectors are like small maps for Scrapy to navigate the DOM tree and find the location of the data we need. In this article, we will use CSS selectors to analyze page data. And to help us create these CSS selectors, we will use Scrapy Shell.
+
+One of the great features of Scrapy is that it comes with an integrated shell that allows you to quickly test and debug your XPath & CSS selectors. Instead of having to launch your complete scraper to see if your XPath or CSS selectors are correct, you can enter them directly into your terminal and see the result.
+
+To open Scrapy shell use this command:
+
+```css
+scrapy shell
+```
+
+And then edit your `scrapy.cfg` file like so:
+
+```css
+[settings]
+default = chocolatescraper.settings
+shell = ipython
+```
+
+with our scrapy shell open, you should see something like this:
+
+```css
+s] Available Scrapy objects:
+[s]   scrapy     scrapy module (contains scrapy.Request, scrapy.Selector, etc)
+[s]   crawler    <scrapy.crawler.Crawler object at 0x10b9eb520>
+[s]   item       {}
+[s]   settings   <scrapy.settings.Settings object at 0x10b9eace0>
+[s] Useful shortcuts:
+[s]   fetch(url[, redirect=True]) Fetch URL and update local objects (by default, redirects are followed)
+[s]   fetch(req)                  Fetch a scrapy.Request and update local objects 
+[s]   shelp()           Shell help (print this help)
+[s]   view(response)    View response in a browser
+In [1]: 
+```
+
+##### Fetch The Page
+
+To create our CSS selectors we will be testing them on the following page.
+
+IMAGE
+
+The first thing we want to do is fetch the main products page of the chocolate site in our Scrapy shell.
+
+`fetch('https://www.chocolate.co.uk/collections/all')`
+
+We should see a response like this:
+
+```css
+In [1]: fetch('https://www.chocolate.co.uk/collections/all')
+2023-03-06 01:29:39 [asyncio] DEBUG: Using selector: KqueueSelector
+2023-03-06 01:29:39 [scrapy.core.engine] INFO: Spider opened
+2023-03-06 01:29:40 [urllib3.connectionpool] DEBUG: Starting new HTTPS connection (1): publicsuffix.org:443
+2023-03-06 01:29:40 [urllib3.connectionpool] DEBUG: https://publicsuffix.org:443 "GET /list/public_suffix_list.dat HTTP/1.1" 200 81598
+2023-03-06 01:29:41 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://www.chocolate.co.uk/robots.txt> (referer: None)
+2023-03-06 01:29:41 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://www.chocolate.co.uk/collections/all> (referer: None)
+```
+
+As we can see, we successful retrieve the page from `chocolate.co.uk`, and Scrapy shell has automatically saved the HTML response in the response variable.
+
+```css
+In [2]: response
+Out[2]: <200 https://www.chocolate.co.uk/collections/all>
+```
+
+### Find Product CSS Selectors
+
+To find the correct CSS selectors to parse the product details we will first open the page in our browsers DevTools.
+
+Open the [website](https://www.chocolate.co.uk/collections/all), then open the developer tools console (right click on the page and click inspect).
+
+IMAGE
+
+Using the inspect element, hover over the item and look at the id's and classes on the individual products.
+
+In this case we can see that each box of chocolates has its own special component which is called `product-item`. We can just use this to reference our products (see above image).
+
+Now using our Scrapy shell we can see if we can extract the product informaton using this class.
+
+```css
+response.css('product-item')
+```
+
+We can see that it has found all the elements that match this selector.
+
+```css
+In [3]: response.css('product-item')
+Out[3]: 
+[<Selector xpath='descendant-or-self::product-item' data='<product-item class="product-item " r...'>,
+ <Selector xpath='descendant-or-self::product-item' data='<product-item class="product-item " r...'>,
+ <Selector xpath='descendant-or-self::product-item' data='<product-item class="product-item " r...'>,
+ <Selector xpath='descendant-or-self::product-item' data='<product-item class="product-item " r...'>,
+ <Selector xpath='descendant-or-self::product-item' data='<product-item class="product-item " r...'>,
+ <Selector xpath='descendant-or-self::product-item' data='<product-item class="product-item " r...'>,
+ <Selector xpath='descendant-or-self::product-item' data='<product-item class="product-item " r...'>,
+ <Selector xpath='descendant-or-self::product-item' data='<product-item class="product-item " r...'>,
+ <Selector xpath='descendant-or-self::product-item' data='<product-item class="product-item " r...'>,
+ <Selector xpath='descendant-or-self::product-item' data='<product-item class="product-item pro...'>,
+ <Selector xpath='descendant-or-self::product-item' data='<product-item class="product-item pro...'>,
+ <Selector xpath='descendant-or-self::product-item' data='<product-item class="product-item " r...'>,
+ <Selector xpath='descendant-or-self::product-item' data='<product-item class="product-item " r...'>,
+ <Selector xpath='descendant-or-self::product-item' data='<product-item class="product-item " r...'>,
+ <Selector xpath='descendant-or-self::product-item' data='<product-item class="product-item " r...'>,
+ <Selector xpath='descendant-or-self::product-item' data='<product-item class="product-item " r...'>,
+ <Selector xpath='descendant-or-self::product-item' data='<product-item class="product-item " r...'>,
+ <Selector xpath='descendant-or-self::product-item' data='<product-item class="product-item " r...'>,
+ <Selector xpath='descendant-or-self::product-item' data='<product-item class="product-item " r...'>,
+ <Selector xpath='descendant-or-self::product-item' data='<product-item class="product-item " r...'>,
+ <Selector xpath='descendant-or-self::product-item' data='<product-item class="product-item pro...'>,
+ <Selector xpath='descendant-or-self::product-item' data='<product-item class="product-item " r...'>,
+ <Selector xpath='descendant-or-self::product-item' data='<product-item class="product-item " r...'>,
+ <Selector xpath='descendant-or-self::product-item' data='<product-item class="product-item " r...'>]
+
+In [4]: 
+```
+
+#### Get First Product
+
+To just get the first product we use `.get()` appended to the end of the command.
+
+`response.css('product-item').get()`
+
+This returns all the HTML in this node of the DOM tree.
+
+```css
+In [4]: response.css('product-item').get()
+Out[4]: '<product-item class="product-item " reveal><div class="product-item__image-wrapper product-item__image-wrapper--multiple"><div class="product-item__label-list label-list"><span class="label label--custom">New</span></div><a href="/products/100-dark-hot-chocolate-flakes" class="product-item__aspect-ratio aspect-ratio aspect-ratio--square" style="padding-bottom: 100.0%; --aspect-ratio: 1.0">\n 
+...
+```
+
+#### Get All Products
+
+Now that we have found the DOM node that contains the product items, we will get all of them and save this data into a response variable and loop through the items and extract the data we need.
+
+So can do this with the following command.
+
+```
+In [5]: products = response.css('product-item')
+```
+
+The products variable, is now an list of all the products on the page.
+
+To check the length of the products variable we can see how many products are there.
+
+`len(products)`
+
+Here is the output:
+
+```css
+In [6]: len(products)
+Out[6]: 24
+
+```
+
+#### Extract Product Details
+
+Now lets extract the  **name** , **price** and **url** of each product from the list of products.
+
+The products variable is a list of products. When we update our spider code, we will loop through this list, however, to find the correct selectors we will test the CSS selectors on the first element of the list `products[0]`.
+
+##### Single Product - Get Single Product
+
+`In [7]: product = products[0]`
+
+##### Name - The product name can be found with
+
+`product.css('a.product-item-meta__title::tex').get()`
+
+```css
+In [8]: product.css('a.product-item-meta__title::text').get()
+Out[8]: '100% Dark Hot Chocolate Flakes'
+```
+
+##### Price - The product price can be found with
+
+```css
+product.css('span.price').get()
+```
+
+You can see that the data returned for the price has lots of extra HTML. We'll get rid of this in the next step.
+
+```css
+In [9]: product.css('span.price').get()
+Out[9]: '<span class="price">\n              <span class="visually-hidden">Sale price</span>£9.95</span>'
+```
+
+To remove the extra span tags from our price we can use the `.replace()` method. The replace method can be useful when we need to clean up data.
+
+Here we're going to replace the `<span>` sections with empty quotes `''`:
+
+```css
+product.css('span.price').get().replace(''<span class="price">\n              <span class="visually-hidden">Sale price</span>£9.95</span>', '').replace('</span', '')
+```
+
+```css
+In [13]: product.css('span.price').get().replace('<span class="price">\n              <span class="visually-hidden">Sale price</span>', '').replace('</span>', '')
+Out[13]: '£9.95'
+```
+
+**Product URL** - Next lets see how we can extract the product url for each individual product. To do that we can use the attrib function on the end of
+
+```css
+product.css('div.product-item-meta a').attrib['href']
+```
+
+```css
+In [14]: product.css('div.product-item-meta a').attrib['href']
+Out[14]: '/products/100-dark-hot-chocolate-flakes'
+```
+
+#### Updated Spider
+
+Now, that we've found the correct CSS selectors let's update our spider. Exit Scrapy shell with the `exit()` command.
+
+Our updated Spider code should look like this:
+
+```apache
+import scrapy
+
+class ChocolatespiderSpider(scrapy.Spider):
+    #the name of the spider
+    name = "chocolatespider"
+  
+    #the url of the first page that we will start scraping
+    allowed_domains = ["chocolate.co.uk"]
+    start_urls = ["https://www.chocolate.co.uk/collections/all."]
+
+    def parse(self, response):
+        #here we are looping through the products and extracting the name, price and url
+        products = response.css('product-item')
+        for product in products:
+            #here we put the data returned into the format we want to output for our csv or json file
+            yield{
+                'name' : product.css('a.product-item-meta__title::text').get(),
+                'price' : product.css('span.price').get().replace('<span class="price">\n              <span class="visually-hidden">Sale price</span>', '').replace('</span>', ''),
+                'url' : product.css('div.product-item-meta a').attrib['href']
+            }
+```
+
+Here, our spider does the following steps:
+
+1. Makes a request to `'https://www.chocolate.co.uk/collections/all'`.
+2. When it gets a response, it extracts all the products from the page using `products = response.css('product-item')`.
+3. Loops through each product, and extracts the  **name** , **price** and **url** using the CSS selectors we created.
+4. Yields these items so they can be stored in a CSV, JSON, DB, etc.
