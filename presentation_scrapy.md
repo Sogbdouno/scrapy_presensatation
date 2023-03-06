@@ -21,7 +21,6 @@ Although, there are other Python libraries also used for web scraping:
 
 * [Python Requests](https://docs.python-requests.org/en/latest/https://)/[BeautifulSoup](https://beautiful-soup-4.readthedocs.io/en/latest/https://): Good for small scale web scraping where the data is returned in the HTML response. Would need to build you own spider management functionality to manage concurrency, retries, data cleaning, data storage.
 * [Python Request-HTML](https://github.com/psf/requests-htmlhttps://): Combining Python requests with a parsing library, Request-HTML is a middle-ground between the Python Requests/BeautifulSoup combo and Scrapy.
-
 * [Python Selenium](https://selenium-python.readthedocs.io/https://): Use if you are scraping a site if it only returns the target data after the Javascript has rendered, or you need to interact with page elements to get the data.
 
 **[Python Scrapy](https://scrapy.org/)** has lots more functionality and is great for large scale scraping right out of the box:
@@ -42,7 +41,7 @@ The learning curve is initially steeper than using the Python Requests/Beautiful
 
 #### Step 1: Setup your Python Environment
 
-Before installing scrapy in your system the first thing to do is to create a virtual environment. 
+Before installing scrapy in your system the first thing to do is to create a virtual environment.
 
 But for a well organized job, start creating a folder that will contain your srapy project in your terminal by typing the command:
 
@@ -493,3 +492,97 @@ Here, our spider does the following steps:
 2. When it gets a response, it extracts all the products from the page using `products = response.css('product-item')`.
 3. Loops through each product, and extracts the  **name** , **price** and **url** using the CSS selectors we created.
 4. Yields these items so they can be stored in a CSV, JSON, DB, etc.
+
+### Step 5: Running Our Spider
+
+Now that we have a spider we can run it by going to the top level in our scrapy project and running the following command.
+
+```apache
+scrapy crawl chocolatespider
+```
+
+It will run, and you should see the logs on your screen. Here are the final stats:
+
+```css
+2023-03-06 16:40:41 [scrapy.statscollectors] INFO: Dumping Scrapy stats:
+{'downloader/request_bytes': 960,
+ 'downloader/request_count': 2,
+ 'downloader/request_method_count/GET': 2,
+ 'downloader/response_bytes': 45614,
+ 'downloader/response_count': 2,
+ 'downloader/response_status_count/200': 2,
+ 'elapsed_time_seconds': 0.828502,
+ 'feedexport/success_count/FileFeedStorage': 1,
+ 'finish_reason': 'finished',
+ 'finish_time': datetime.datetime(2023, 3, 6, 16, 40, 41, 823425),
+ 'httpcompression/response_bytes': 222310,
+ 'httpcompression/response_count': 2,
+ 'item_scraped_count': 24,
+ 'log_count/DEBUG': 29,
+ 'log_count/INFO': 11,
+ 'memusage/max': 57987072,
+ 'memusage/startup': 57982976,
+ 'response_received_count': 2,
+ 'robotstxt/request_count': 1,
+ 'robotstxt/response_count': 1,
+ 'robotstxt/response_status_count/200': 1,
+ 'scheduler/dequeued': 1,
+ 'scheduler/dequeued/memory': 1,
+ 'scheduler/enqueued': 1,
+ 'scheduler/enqueued/memory': 1,
+ 'start_time': datetime.datetime(2023, 3, 6, 16, 40, 40, 994923)}
+2023-03-06 16:40:41 [scrapy.core.engine] INFO: Spider closed (finished)
+```
+
+We can see from the above stats that our spider scraped 24 items:
+
+`'item_scraped_count': 24`
+
+If we want to save the data to a JSON file we can use the `-0` option, followed by the name of file.
+
+`scrapy crawl chocolatespider -0 myscrapeddata.json`
+
+Then a json file will be created in your project and that will contain your collection.
+
+```css
+[
+{"name": "100% Dark Hot Chocolate Flakes", "price": "£9.95", "url": "/products/100-dark-hot-chocolate-flakes"},
+{"name": "2.5kg Bulk 41% Milk Hot Chocolate Drops", "price": "£45.00", "url": "/products/2-5kg-bulk-of-our-41-milk-hot-chocolate-drops"},
+{"name": "2.5kg Bulk 61% Dark Hot Chocolate Drops", "price": "£45.00", "url": "/products/2-5kg-of-our-best-selling-61-dark-hot-chocolate-drops"},
+{"name": "41% Milk Hot Chocolate Drops", "price": "£8.75", "url": "/products/41-colombian-milk-hot-chocolate-drops"},
+{"name": "61% Dark Hot Chocolate Drops", "price": "£8.75", "url": "/products/62-dark-hot-chocolate"},
+{"name": "70% Dark Hot Chocolate Flakes", "price": "£9.95", "url": "/products/70-dark-hot-chocolate-flakes"},
+{"name": "Almost Perfect", "price": "From £1.50\n", "url": "/products/almost-perfect"},
+{"name": "Assorted Chocolate Malt Balls", "price": "£9.00", "url": "/products/assorted-chocolate-malt-balls"},
+{"name": "Blonde Caramel", "price": "£5.00", "url": "/products/blonde-caramel-chocolate-bar"},
+{"name": "Blonde Chocolate Honeycomb", "price": "£9.00", "url": "/products/blonde-chocolate-honeycomb"},
+{"name": "Blonde Chocolate Honeycomb - Bag", "price": "£8.50", "url": "/products/blonde-chocolate-sea-salt-honeycomb"},
+{"name": "Blonde Chocolate Malt Balls", "price": "£9.00", "url": "/products/blonde-chocolate-malt-balls"},
+{"name": "Blonde Chocolate Truffles", "price": "£19.95", "url": "/products/blonde-chocolate-truffles"},
+{"name": "Blonde Hot Chocolate Flakes", "price": "£9.95", "url": "/products/blonde-hot-chocolate-flakes"},
+{"name": "Bulk 41% Milk Hot Chocolate Drops 750 grams", "price": "£17.50", "url": "/products/bulk-41-milk-hot-chocolate-drops-750-grams"},
+{"name": "Bulk 61% Dark Hot Chocolate Drops 750 grams", "price": "£17.50", "url": "/products/750-gram-bulk-61-dark-hot-chocolate-drops"},
+{"name": "Caramelised Milk", "price": "£5.00", "url": "/products/caramelised-milk-chocolate-bar"},
+{"name": "Caramelised Milk Chocolate Tarte Tatin Chocolate Easter Egg", "price": "£29.95", "url": "/products/pre-order-toasted-sourdough-sea-salt-dark-chocolate-easter-egg"},
+{"name": "Chocolate Caramelised Pecan Nuts", "price": "£8.95", "url": "/products/chocolate-caramelised-pecan-nuts"},
+{"name": "Chocolate Celebration Hamper", "price": "£55.00", "url": "/products/celebration-hamper"},
+{"name": "Christmas Truffle Selection", "price": "£19.95", "url": "/products/pre-order-christmas-truffle-selection"},
+{"name": "Cinnamon Toast", "price": "£5.00", "url": "/products/cinnamon-toast-chocolate-bar"},
+{"name": "Coconut Easter Egg", "price": "£29.95", "url": "/products/coconut-easter-egg"},
+{"name": "Collection of 4 of our Best Selling Chocolate Malt Balls", "price": "£30.00", "url": "/products/collection-of-our-best-selling-chocolate-malt-balls"}
+]
+```
+
+If we want to save the data to CSV file we can do so too.
+
+`scrapy crawl chocolatespider -O myscrapeddata.csv`
+
+### Step 6: Navigating to the "Next Page"
+
+So far the code is working great but we're only getting the products from the first page of the site, the url which we have listed in the start_url variable.
+
+So the next logical step is to go to the next page if there is one and scrape the item data from that too! So here's how we do that.
+
+First, lets open our Scrapy shell again, fetch the page and find the correct selector to get the **next page** button.
+
+`scrapy shell`
