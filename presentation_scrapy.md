@@ -1,3 +1,5 @@
+![](img/scrapy.jpeg)
+
 # Introduction
 
 The World Wide Web is made up of billions of interconnected documents commonly referred to as "Internet sites". The source code of these websites is written in Hypertext Markup Language(HTML). [This HTML source code](https://www.ionos.fr/digitalguide/sites-internet/developpement-web/apprendre-le-html-le-tutoriel-pour-debutant/https://)  is a  **mixture of human-readable information and machine-readable code**  , known as beacons. The web browser – eg. Chrome, Firefox, Safari or Edge – processes the source code, interprets the tags and makes the information they contain available to the user.
@@ -8,6 +10,7 @@ However there are several libraries allowing to quickly make web scraping hence 
 **scrapy library**  that we will present in this article.
 
 # Presentation
+![](img/scrapy_architecture.jpeg)
 
 ### What Is Crapy?
 
@@ -295,7 +298,7 @@ In [1]:
 
 To create our CSS selectors we will be testing them on the following page.
 
-IMAGE
+![](img/annonces.png)
 
 The first thing we want to do is fetch the main products page of the chocolate site in our Scrapy shell.
 
@@ -324,7 +327,7 @@ To find the correct CSS selectors to parse the product details we will first ope
 
 Open the [website](https://www.expat-dakar.com/appartements-a-louer), then open the developer tools console (right click on the page and click inspect).
 
-IMAGE
+![](img/apartmentinspect.png)
 
 Using the inspect element, hover over the item and look at the id's and classes on the individual apartment.
 
@@ -627,34 +630,30 @@ Now, we just need to update our spider to request this page after it has parsed 
 ```css
 import scrapy
 
-
-class ApartmentspiderSpider(scrapy.Spider):
+class ChocolatespiderSpider(scrapy.Spider):
     #the name of the spider
-    name = "apartmentspider"
-    allowed_domains = ["expat-dakar.com"]
+    name = "chocolatespider"
+  
     #the url of the first page that we will start scraping
-    start_urls = ["https://www.expat-dakar.com/appartements-a-louer"]
+    allowed_domains = ["chocolate.co.uk"]
+    start_urls = ["https://www.chocolate.co.uk/collections/all"]
 
     def parse(self, response):
-        #here we are looping through the apartments and extracting the title, adress, price and number_of_room
-        apartments = response.css('div.listings-cards__list-item')
-        for apartment in apartments:
+        #here we are looping through the products and extracting the name, price and url
+        products = response.css('product-item')
+        for product in products:
+            #here we put the data returned into the format we want to output for our csv or json file
             yield{
-                'title' : apartment.css('div.listing-card__header__title::text').get().replace('\n', ''),
-                'adress' : apartment.css('div.listing-card__header__location::text').get().replace('\n', ''),
-                'price' : apartment.css('span.listing-card__price__value::text').get().replace('\n', '').replace('\u202f', '').replace(' F Cfa', ''),
-                "number_of_room": apartment.css('div.listing-card__header__tags::text').get()
-                        
+                'name' : product.css('a.product-item-meta__title::text').get(),
+                'price' : product.css('span.price').get().replace('<span class="price">\n              <span class="visually-hidden">Sale price</span>', '').replace('</span>', ''),
+                'url' : product.css('div.product-item-meta a').attrib['href']
             }
-    
+  
         next_page = response.css('[rel="next"] ::attr(href)').get()
-        if next_page is not None:
-            next_page_url = "https://www.expat-dakar.com/appartements-a-louer" + next_page
-            yield response.follow(next_page_url, callback =self.parse)
-    
-    
-    
-
+  
+        if next_page is not None: 
+            next_page_url = 'https://www.chocolate.co.uk' + next_page
+            yield response.follow(next_page_url, callback=self.parse)
 ```
 
 Here we see that our spider now, finds the URL of the next page and if it isn't none it appends it to the base URL and makes another request.
