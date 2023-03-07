@@ -1,5 +1,45 @@
 ![](img/scrapy.jpeg)
 
+Content
+- [Introduction](#introduction)
+- [Presentation](#presentation)
+    - [What Is Crapy?](#what-is-crapy)
+    - [Data Flow From A Scrapy](#data-flow-from-a-scrapy)
+    - [Why \& When Should You Use Scrapy?](#why--when-should-you-use-scrapy)
+    - [Starting](#starting)
+    - [Step 1: Setup your Python Environment](#step-1-setup-your-python-environment)
+          - [Create the virtual environment](#create-the-virtual-environment)
+          - [Activate the virtual environment](#activate-the-virtual-environment)
+          - [Install Crapy in your virtual environment](#install-crapy-in-your-virtual-environment)
+    - [Step 2: Setup Our Scrapy Project](#step-2-setup-our-scrapy-project)
+          - [Creating Our Scrapy Project](#creating-our-scrapy-project)
+          - [Understanding Scrapy Project Structure](#understanding-scrapy-project-structure)
+    - [Step 3: Creating Our Spider](#step-3-creating-our-spider)
+    - [Step 4: Update Start Urls](#step-4-update-start-urls)
+    - [Step 5: Scrapy Shell: Finding Our Css Selectors](#step-5-scrapy-shell-finding-our-css-selectors)
+        - [Fetch The Page](#fetch-the-page)
+    - [Find Product CSS Selectors](#find-product-css-selectors)
+      - [Get First Apartement](#get-first-apartement)
+      - [Get All Apartments](#get-all-apartments)
+      - [Extract Apartments Details](#extract-apartments-details)
+        - [Single Apartment - Get Single apartment](#single-apartment---get-single-apartment)
+        - [Title - The apartment title can be found with](#title---the-apartment-title-can-be-found-with)
+        - [Adress- The apartment adress can be found with](#adress--the-apartment-adress-can-be-found-with)
+          - [Price: the apartment price can be found with](#price-the-apartment-price-can-be-found-with)
+          - [Number\_of\_room: the apartment number\_of\_room can be found with](#number_of_room-the-apartment-number_of_room-can-be-found-with)
+      - [Updated Spider](#updated-spider)
+    - [Step 6: Running Our Spider](#step-6-running-our-spider)
+    - [Step 7: Navigating to the "Next Page"](#step-7-navigating-to-the-next-page)
+  - [Next Steps](#next-steps)
+- [Cleaning Dirty Data \& Dealing With Edge Cases](#cleaning-dirty-data--dealing-with-edge-cases)
+    - [Organizing Our Data With Scrapy Items](#organizing-our-data-with-scrapy-items)
+    - [Pre Processing Data With Scrapy Item Loaders](#pre-processing-data-with-scrapy-item-loaders)
+    - [Processing Our Data With Scrapy Item Pipelines](#processing-our-data-with-scrapy-item-pipelines)
+        - [Converting The Price](#converting-the-price)
+        - [Removing Duplicate](#removing-duplicate)
+- [Conclusion](#conclusion)
+- [Referencies](#referencies)
+
 # Introduction
 
 The World Wide Web is made up of billions of interconnected documents commonly referred to as "Internet sites". The source code of these websites is written in Hypertext Markup Language(HTML). [This HTML source code](https://www.ionos.fr/digitalguide/sites-internet/developpement-web/apprendre-le-html-le-tutoriel-pour-debutant/https://)  is a  **mixture of human-readable information and machine-readable code**  , known as beacons. The web browser – eg. Chrome, Firefox, Safari or Edge – processes the source code, interprets the tags and makes the information they contain available to the user.
@@ -20,7 +60,7 @@ Developed by the co-founders of [Zyte](https://www.zyte.com/?rfsn=6335521.8097b3
 Using Scrapy you can easily build highly scalable scrapers that will retrieve a pages HTML, parse and process the data, and store it the file format and location of your choice.
 
 ### Data Flow From A Scrapy
-
+![](img/scrapy_architecture.jpeg)
 ### Why & When Should You Use Scrapy?
 
 Although, there are other Python libraries also used for web scraping:
@@ -45,7 +85,7 @@ The learning curve is initially steeper than using the Python Requests/Beautiful
 
 ### Starting
 
-#### Step 1: Setup your Python Environment
+### Step 1: Setup your Python Environment
 
 Before installing scrapy in your system the first thing to do is to create a virtual environment.
 
@@ -415,16 +455,16 @@ The apartments variable is a list of apartments. When we update our spider code,
 
 `apartment.css('div.listing-card__header__title::text').get()`
 
-You can see that the data returned for the title has lots of extra HTML. We'll get rid of this in the next step.
+You can see that the data returned for the title has additional HTML characters. We’ll get rid of that in the next step.
 
-```css
-In [9]: apartment.css('div.listing-card__header__title::text').get()
-Out[9]: '\nAppartements KALIA - Zone de captage\n'
+```apache
+In [12]: apartment.css('div.listing-card__header__title::text').get()
+Out[12]: '\nAppartements KALIA - Zone de captage\n'
 ```
 
-To remove the extra div tags from our title we can use the `.replace()` method. The replace method can be useful when we need to clean up data.
+To remove the \n  from our title we can use the `.replace()` method. The replace method can be useful when we need to clean up data.
 
-Here we're going to replace the `<div>` sections with empty quotes `''`:
+Here we're going to replace the `\n` with empty quotes `''`:
 
 ```css
 apartment.css('div.listing-card__header__title::text').get().replace('\n', '')
@@ -443,14 +483,14 @@ In [11]:
 apartment.css('div.listing-card__header__location::text').get()
 ```
 
-You can see that the data returned for the title has lots of extra HTML. We'll get rid of this in the next step.
+We do the same as for the previous variable. We will also use the replace() function.
 
 ```css
 In [12]: apartment.css('div.listing-card__header__location::text').get()
 Out[12]: '\nZone de captage,\nDakar\n'
 ```
 
-We will remove the div tags from our address as for the title with the `.replace()` method.
+We will remove the \n  from our address as for the title with the `.replace()` method.
 
 ```css
 apartment.css('div.listing-card__header__location::text').get().replace('\n', ''
@@ -471,7 +511,9 @@ In [16]: apartment.css('span.listing-card__price__value::text').get()
 Out[16]: '\n500\u202f000 F Cfa\n'
 ```
 
-We will also remove the div tags
+Here we keep that in addition to the caratere we also have empty spaces.
+
+We will also remove the \n and space.
 
 ```apache
 In [19]: apartment.css('span.listing-card__price__value::text').get().replace('\n', '').r
@@ -531,7 +573,7 @@ Here, our spider does the following steps:
 3. Loops through each apartment, and extracts the  **title** , **adress**, **price** and **number_of_room** using the CSS selectors we created.
 4. Yields these items so they can be stored in a CSV, JSON, DB, etc.
 
-### Step 5: Running Our Spider
+### Step 6: Running Our Spider
 
 Now that we have a spider we can run it by going to the top level in our scrapy project and running the following command.
 
@@ -601,7 +643,7 @@ If we want to save the data to CSV file we can do so too.
 
 `scrapy crawl apartmentspider -O myscrapeddata.csv`
 
-### Step 6: Navigating to the "Next Page"
+### Step 7: Navigating to the "Next Page"
 
 So far the code is working great but we're only getting the apartments from the first page of the site, the url which we have listed in the start_url variable.
 
@@ -786,3 +828,94 @@ Whereas in the previous section, we populated the Item directly. Scrapy Item Loa
 | **Appending Data**      | Adding a value to the front or end of an item value. For example, adding`"kilograms"` to the end of a number |
 
 Not only does using Item Loaders make cleaning your data easier, they also make the spider itself easier to read by moving all the xpath/css references to the Item Loader.
+
+### Processing Our Data With Scrapy Item Pipelines
+
+Item Pipelines to manipuate the data we have scraped before saving it.
+
+Using **Item Pipelines** we are going to do the following:
+
+* Convert the price from a string to a float
+* Drop items that currently have no price
+* Check if an Item is a duplicate and drop it if it's a duplicate.
+
+##### Converting The Price
+
+Once an Item has been scraped by the spider, it is sent to the `**Item Pipeline**` for validation and processing.
+
+Each Item Pipeline is a Python class that implements a simple method called `process_item`.
+
+The `process_item` method takes in an Item, performs an action on it and decides if the item should continue through the pipeline or be dropped.
+
+In the pipeline below we are going to take the **apartmentscraperItem** item,  convert the price to a float, then convert the price from pounds sterling to dollars by multiplying the price scraped by the exchange rate.
+
+The pipelines live inside the pipelines.py file in your project - at the same folder level as the `itemloaders.py` and `items.py` files we were working with above.
+
+```apache
+from itemadapter import ItemAdapter
+from scrapy.exceptions import DropItem
+
+
+class PriceToUSDPipeline:
+
+    gbpToUsdRate = 1.3
+
+    def process_item(self, item, spider):
+        adapter = ItemAdapter(item)
+
+        ## check is price present
+        if adapter.get('price'):
+
+            #converting the price to a float
+            floatPrice = float(adapter['price'])
+
+            #converting the price from gbp to usd using our hard coded exchange rate
+            adapter['price'] = floatPrice * self.gbpToUsdRate
+
+            return item
+
+        else:
+            # drop item if no price
+            raise DropItem(f"Missing price in {item}")
+
+```
+
+##### Removing Duplicate
+
+To remove duplicate  **apartmentscraperItem**  items we will be checking the name of the product and if the name is already present then we will drop the Item (not returned to our output).
+
+This second pipeline class also goes into the same `pipelines.py` file in your project.
+
+```apache
+from itemadapter import ItemAdapter
+from scrapy.exceptions import DropItem
+
+
+class DuplicatesPipeline:
+
+    def __init__(self):
+        self.names_seen = set()
+
+    def process_item(self, item, spider):
+        adapter = ItemAdapter(item)
+        if adapter['title'] in self.names_seen:
+            raise DropItem(f"Duplicate item found: {item!r}")
+        else:
+            self.names_seen.add(adapter['title'])
+            return item
+```
+
+Notice: There are several methods to clean the data but not all of them will be visible in this article. Our first objective was to be able to collect the data with the scrapy framework in the next parts of this article we will deepen the topic of the cleaning of the data
+
+# Conclusion
+
+Scrapy is a Python framework that greatly facilitates web scraping tasks. In this article we have seen the overall operating principle of Scrapy. Then we saw an example of web crawling with the framework that allowed us to create a data set. The purpose of this article was to provide an introduction to the Scrapy framework.
+
+We also briefly saw that it is possible to clean up the data collected on a site.
+
+Scrapy is a robust tool and quite easy to handle. If you often do data extraction on the web, this tool can surely make your life easier.
+
+# Referencies
+* [`scrapeops.io`](https://scrapeops.io/)
+
+* [`docs.scrapy.org`](https://docs.scrapy.org/en/latest/intro/tutorial.html)
