@@ -10,6 +10,7 @@ However there are several libraries allowing to quickly make web scraping hence 
 **scrapy library**  that we will present in this article.
 
 # Presentation
+
 ![](img/scrapy_architecture.jpeg)
 
 ### What Is Crapy?
@@ -17,6 +18,8 @@ However there are several libraries allowing to quickly make web scraping hence 
 Developed by the co-founders of [Zyte](https://www.zyte.com/?rfsn=6335521.8097b3https://), Pablo Hoffman and Shane Evans, [Scrapy](https://scrapy.org/https://) is a python framework specifically for web scraping.
 
 Using Scrapy you can easily build highly scalable scrapers that will retrieve a pages HTML, parse and process the data, and store it the file format and location of your choice.
+
+### Data Flow From A Scrapy
 
 ### Why & When Should You Use Scrapy?
 
@@ -694,3 +697,92 @@ Now in our Scrapy stats we see that we have scraped 5 pages, and extracted 73 it
 ## Next Steps
 
 In the second part, we will work on data cleaning. Web data can sometimes be very messy, unstructured, and have many edge cases so will make our spider robust to these edge cases, using articles, Itemloaders and Item Pipelines.
+
+# Cleaning Dirty Data & Dealing With Edge Cases
+
+Earlier we learned how to build a basic scrapy spider and have it retrieve some data from a website.
+
+Web data can be messy, unstructured, and have lots of edge cases. So it is important that your Scrapy spiders are robust and deal with messy data.
+
+### Organizing Our Data With Scrapy Items
+
+Up until now we've been yielding our data in a dictionary. However, the preferred way of yielding data in Scrapy is using its [**Item**](https://docs.scrapy.org/en/latest/topics/items.html#:~:text=The%20main%20goal%20in%20scraping,supports%20multiple%20types%20of%20items.) functionality.
+
+Scrapy Items are simply a predefined data structure that holds your data. Using Scrapy Items has a number of advantages:
+
+* More structured way of storing data.
+* Enables easier use of Scrapy Item Pipelines & Item Loaders.
+* Ability to configure unit tests with Scrapy extensions like [Spidermon](https://scrapeops.io/python-scrapy-playbook/extensions/scrapy-spidermon-guide).
+
+So the next step we're going to do is switch to using Scrapy Items in our `apartmentspider`.
+
+Creating an Item is very easy. Simply create a Item schema in your `items.py` file.
+
+This file is usually auto generated when you create a new project using scrapy and lives at the same folder level as where you have the settings.py file for your scrapy project.
+
+```apache
+import scrapy
+
+class ApartmentscraperItem(scrapy.Item):
+    title = scrapy.Field()
+    adress = scrapy.Field()
+    price = scrapy.Field()
+    number_of_room = scrapy.Field()
+```
+
+Then in our `apartmentspider.py` file, import the Item schema and update our spider to store the data in the Item.
+
+```apache
+import scrapy
+from apartmentscraper.items import ApartmentscraperItem
+
+
+class ApartmentspiderSpider(scrapy.Spider):
+    #the name of the spider
+    name = "apartmentspider"
+    allowed_domains = ["expat-dakar.com"]
+    #the url of the first page that we will start scraping
+    start_urls = ["https://www.expat-dakar.com/appartements-a-louer"]
+
+    def parse(self, response):
+        #here we are looping through the apartments and extracting the title, adress, price and number_of_room
+        apartments = response.css('div.listings-cards__list-item')
+        apartment_item = ApartmentscraperItem()
+  
+        for apartment in apartments:
+            apartment_item['title'] = apartment.css('div.listing-card__header__title::text').get().replace('\n', '')
+            apartment_item['adress'] = apartment.css('div.listing-card__header__location::text').get().replace('\n', '')
+            apartment_item['price'] = apartment.css('span.listing-card__price__value::text').get().replace('\n', '').replace('\u202f', '').replace(' F Cfa', '')
+            apartment_item['number_of_room'] = apartment.css('div.listing-card__header__tags::text').get()
+      
+  
+        next_page = response.css('[rel="next"] ::attr(href)').get()
+        if next_page is not None:
+            next_page_url = "https://www.expat-dakar.com/appartements-a-louer" + next_page
+            yield response.follow(next_page_url, callback =self.parse)
+  
+  
+  
+
+```
+
+### Pre Processing Data With Scrapy Item Loaders
+
+To take things one step further we are going to use Scrapy Item loaders.
+
+[**Item Loaders**](https://docs.scrapy.org/en/latest/topics/loaders.html) provide an easier way to populate items from a scraping process.
+
+Whereas in the previous section, we populated the Item directly. Scrapy Item Loaders provide a much more convenient mechanism for populating them during the scraping process, by automating some common tasks like parsing the raw extracted data before assigning it.
+
+
+| Example                 | Description                                                                                                  |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| **Removing Characters** | Removing extra tags or special characters from the parsed data. For example, removing currency signs.        |
+| **Type Coversion**      | Converting a**string** to an  **int** .                                                                      |
+| **URL Conversion**      | Changing URLs from relative to absolute URLs.                                                                |
+| **Combining Fields**    | Combine 2 or more pieces of information that scraped into one field.                                         |
+| **Replacing Values**    | Replacing one value for another. For example, replacing a`$` sign for a `£` sign.                           |
+| **Unit Conversion**     | Converting the units of a value. For example, converting a string with`120 grams` to `0.12 KG`.              |
+| **Appending Data**      | Adding a value to the front or end of an item value. For example, adding`"kilograms"` to the end of a number |
+
+Not only does using Item Loaders make cleaning your data easier, they also make the spider itself easier to read by moving all the xpath/css references to the Item Loader.
