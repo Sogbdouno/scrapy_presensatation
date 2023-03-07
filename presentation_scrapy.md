@@ -50,8 +50,8 @@ But for a well organized job, start creating a folder that will contain your sra
 We will create a folder named crapy_project and access it by typing:
 
 ```
-192:~ sogbedouno$ mkdir crapy_project
-192:~ sogbedouno$ cd crapy_project/
+192:~ sogbedouno$ mkdir my_project_scrapy
+192:~ sogbedouno$ cd my_project_scrapy/
 ```
 
 ###### Create the virtual environment
@@ -71,7 +71,7 @@ Now that our virtual environment is created in the crapy_project folder, we will
 * Acceder à l'environnement env dans le dossier scrapy_project
 
   ```apache
-  192:crapy_project boubadiop$ cd env/
+  192:my_project_scrapy sogbedouno$ cd env
   192:env sogbedouno$ ls
   bin		include		lib		pyvenv.cfg
 
@@ -85,7 +85,7 @@ Now that our virtual environment is created in the crapy_project folder, we will
 
 ###### Install Crapy in your virtual environment
 
-`(env) 192:env boubadiop$ pip install scrapy`
+`(env) 192:env sogbedouno$ pip install scrapy`
 
 To check that scrapy has been installed you can type in your command prompt `pip list`.
 
@@ -145,20 +145,20 @@ The command to create your scrapy project is:
 
 `scrapy startproject <project_name>`
 
-So in this case, as we're going to be scraping a chocolate website we will call our project chocolatescraper. But you can use any project name you would like.
+So in this case, we are going to scrap the advertisements of apartments for rent from the expat dakar site, we will call our real apartmentscraper. But you can use any project name.
 
-`scrapy startproject chocolatescraper`
+`scrapy startproject apartmentscraper`
 
 ###### Understanding Scrapy Project Structure
 
 To help you understand what we just did, and how Scrapy structures its projects, let’s take a break for a second.
 
-First, we're going to see what the `scrapy startproject chocolatescraper` just did.
+First, we're going to see what the `scrapy startproject apartmentscraper` just did.
 
 Enter the following commands into your command line:
 
 ```apache
-(env) 192:env sogbedouno$ cd chocolatescraper/
+(env) 192:env sogbedouno$ cd apartmentscraper/
 tree
 ```
 
@@ -166,7 +166,7 @@ You should see something like this:
 
 ```apache
 ├── scrapy.cfg
-└── chocolatescraper
+└── apartmentscraper
     ├── __init__.py
     ├── items.py
     ├── middlewares.py
@@ -176,7 +176,7 @@ You should see something like this:
         └── __init__.py
 ```
 
-When we ran the command scrapy startproject chocolatescraper, Scrapy automatically generated a model project to use.
+When we run the command scrapy startproject expatimmobscraper, Scrapy automatically generated a model project to use.
 
 We will not use most of these files in this project but we will give a quick explanation of each because each has a specific purpose:
 
@@ -198,18 +198,19 @@ Scrapy provides a number of different types of spiders, however, in this present
 
 To create a new generic spider, simply run the **genspider** command:
 
-`sogbedouno$ scrapy genspider chocolatespider chocolate.co.uk`
+```apache
+crapy genspider apartmentspider expat-dakar.com
+```
 
 A new spider will now have been added to your `spiders` folder, and it should look like this:
 
-```apache
+```css
 import scrapy
 
-
-class ChocolatespiderSpider(scrapy.Spider):
-    name = "chocolatespider"
-    allowed_domains = ["chocolate.co.uk"]
-    start_urls = ["http://chocolate.co.uk/"]
+class ApartmentspiderSpider(scrapy.Spider):
+    name = "apartmentspider"
+    allowed_domains = ["expat-dakar.com"]
+    start_urls = ["http://expat-dakar.com/"]
 
     def parse(self, response):
         pass
@@ -219,26 +220,28 @@ class ChocolatespiderSpider(scrapy.Spider):
 Here we see that the `genspider` command has created a template spider for us to use in the form of a `Spider` class. This spider class contains:
 
 * **name**: a class attribute that gives a name to the spider. We will use this when running our spider later `scrapy crawl <spider_name>`.
-* **allowed_domains**: a class attribute that tells Scrapy that it should only ever scrape pages of the `chocolate.co.uk` domain. This prevents the spider going rouge and scraping lots of websites. This is optional.
+* **allowed_domains**: a class attribute that tells Scrapy that it should only ever scrape pages of the `expat-dakar.com` domain. This prevents the spider going rouge and scraping lots of websites. This is optional.
 * **start_urls**: a class attribute that tells Scrapy the first url it should scrape. We will be changing this in a bit.
 * **parse**: the `parse` function is called after a response has been recieved from the target website.
 
 To start using this Spider we will have to do two things:
 
-1. Change the `start_urls` to the url we want to scrape [https://www.chocolate.co.uk/collections/all](https://www.chocolate.co.uk/collections/all).
+1. Change the `start_urls` to the url we want to scrape
+
+   [https://www.expat-dakar.com/appartements-a-louer](https://)
 2. Insert our parsing code into the `parse` function.
 
 ### Step 4: Update Start Urls
 
 This is pretty easy, we just need to replace the url in the `start_urls` array:
 
-```apache
+```css
 import scrapy
 
-class ChocolatespiderSpider(scrapy.Spider):
-    name = "chocolatespider"
-    allowed_domains = ["chocolate.co.uk"]
-    start_urls = ["https://www.chocolate.co.uk/collections/all."]
+class ApartmentspiderSpider(scrapy.Spider):
+    name = "apartmentspider"
+    allowed_domains = ["expat-dakar.com"]
+    start_urls = ["https://www.expat-dakar.com/appartements-a-louer"]
 
     def parse(self, response):
         pass
@@ -263,23 +266,28 @@ And then edit your `scrapy.cfg` file like so:
 
 ```css
 [settings]
-default = chocolatescraper.settings
+default = apartmentscraper.settings
 shell = ipython
 ```
 
 with our scrapy shell open, you should see something like this:
 
 ```css
-s] Available Scrapy objects:
+[s] Available Scrapy objects:
 [s]   scrapy     scrapy module (contains scrapy.Request, scrapy.Selector, etc)
-[s]   crawler    <scrapy.crawler.Crawler object at 0x10b9eb520>
+[s]   crawler    <scrapy.crawler.Crawler object at 0x107ec7550>
 [s]   item       {}
-[s]   settings   <scrapy.settings.Settings object at 0x10b9eace0>
+[s]   settings   <scrapy.settings.Settings object at 0x107ec6d10>
 [s] Useful shortcuts:
 [s]   fetch(url[, redirect=True]) Fetch URL and update local objects (by default, redirects are followed)
 [s]   fetch(req)                  Fetch a scrapy.Request and update local objects 
 [s]   shelp()           Shell help (print this help)
 [s]   view(response)    View response in a browser
+2023-03-07 09:19:17 [asyncio] DEBUG: Using selector: KqueueSelector
+In [1]: 
+[s]   shelp()           Shell help (print this help)
+[s]   view(response)    View response in a browser
+2023-03-07 01:37:43 [asyncio] DEBUG: Using selector: KqueueSelector
 In [1]: 
 ```
 
@@ -291,170 +299,194 @@ IMAGE
 
 The first thing we want to do is fetch the main products page of the chocolate site in our Scrapy shell.
 
-`fetch('https://www.chocolate.co.uk/collections/all')`
+`fetch('https://www.expat-dakar.com/appartements-a-louer')`
 
 We should see a response like this:
 
 ```css
-In [1]: fetch('https://www.chocolate.co.uk/collections/all')
-2023-03-06 01:29:39 [asyncio] DEBUG: Using selector: KqueueSelector
-2023-03-06 01:29:39 [scrapy.core.engine] INFO: Spider opened
-2023-03-06 01:29:40 [urllib3.connectionpool] DEBUG: Starting new HTTPS connection (1): publicsuffix.org:443
-2023-03-06 01:29:40 [urllib3.connectionpool] DEBUG: https://publicsuffix.org:443 "GET /list/public_suffix_list.dat HTTP/1.1" 200 81598
-2023-03-06 01:29:41 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://www.chocolate.co.uk/robots.txt> (referer: None)
-2023-03-06 01:29:41 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://www.chocolate.co.uk/collections/all> (referer: None)
+In [1]: fetch('https://www.expat-dakar.com/appartements-a-louer')
+2023-03-07 09:22:58 [asyncio] DEBUG: Using selector: KqueueSelector
+2023-03-07 09:22:58 [scrapy.core.engine] INFO: Spider opened
+2023-03-07 09:22:58 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://www.expat-dakar.com/robots.txt> (referer: None)
+2023-03-07 09:22:59 [scrapy.core.engine] DEBUG: Crawled (200) <GET https://www.expat-dakar.com/appartements-a-louer> (referer: None)
 ```
 
-As we can see, we successful retrieve the page from `chocolate.co.uk`, and Scrapy shell has automatically saved the HTML response in the response variable.
+As we can see, we successful retrieve the page from `expat-dakar.com`, and Scrapy shell has automatically saved the HTML response in the response variable.
 
 ```css
 In [2]: response
-Out[2]: <200 https://www.chocolate.co.uk/collections/all>
+Out[2]: <200 https://www.expat-dakar.com/appartements-a-louer>
 ```
 
 ### Find Product CSS Selectors
 
 To find the correct CSS selectors to parse the product details we will first open the page in our browsers DevTools.
 
-Open the [website](https://www.chocolate.co.uk/collections/all), then open the developer tools console (right click on the page and click inspect).
+Open the [website](https://www.expat-dakar.com/appartements-a-louer), then open the developer tools console (right click on the page and click inspect).
 
 IMAGE
 
-Using the inspect element, hover over the item and look at the id's and classes on the individual products.
+Using the inspect element, hover over the item and look at the id's and classes on the individual apartment.
 
-In this case we can see that each box of chocolates has its own special component which is called `product-item`. We can just use this to reference our products (see above image).
+In this case we can see that each box of apartements has its own special component which is called `listings-cards__list-item`. We can just use this to reference our apartments (see above image).
 
-Now using our Scrapy shell we can see if we can extract the product informaton using this class.
+Now using our Scrapy shell we can see if we can extract the apartment informaton using this class.
 
 ```css
-response.css('product-item')
+response.css('div.listings-cards__list-item')
 ```
 
 We can see that it has found all the elements that match this selector.
 
 ```css
-In [3]: response.css('product-item')
+In [3]: response.css('div.listings-cards__list-item')
 Out[3]: 
-[<Selector xpath='descendant-or-self::product-item' data='<product-item class="product-item " r...'>,
- <Selector xpath='descendant-or-self::product-item' data='<product-item class="product-item " r...'>,
- <Selector xpath='descendant-or-self::product-item' data='<product-item class="product-item " r...'>,
- <Selector xpath='descendant-or-self::product-item' data='<product-item class="product-item " r...'>,
- <Selector xpath='descendant-or-self::product-item' data='<product-item class="product-item " r...'>,
- <Selector xpath='descendant-or-self::product-item' data='<product-item class="product-item " r...'>,
- <Selector xpath='descendant-or-self::product-item' data='<product-item class="product-item " r...'>,
- <Selector xpath='descendant-or-self::product-item' data='<product-item class="product-item " r...'>,
- <Selector xpath='descendant-or-self::product-item' data='<product-item class="product-item " r...'>,
- <Selector xpath='descendant-or-self::product-item' data='<product-item class="product-item pro...'>,
- <Selector xpath='descendant-or-self::product-item' data='<product-item class="product-item pro...'>,
- <Selector xpath='descendant-or-self::product-item' data='<product-item class="product-item " r...'>,
- <Selector xpath='descendant-or-self::product-item' data='<product-item class="product-item " r...'>,
- <Selector xpath='descendant-or-self::product-item' data='<product-item class="product-item " r...'>,
- <Selector xpath='descendant-or-self::product-item' data='<product-item class="product-item " r...'>,
- <Selector xpath='descendant-or-self::product-item' data='<product-item class="product-item " r...'>,
- <Selector xpath='descendant-or-self::product-item' data='<product-item class="product-item " r...'>,
- <Selector xpath='descendant-or-self::product-item' data='<product-item class="product-item " r...'>,
- <Selector xpath='descendant-or-self::product-item' data='<product-item class="product-item " r...'>,
- <Selector xpath='descendant-or-self::product-item' data='<product-item class="product-item " r...'>,
- <Selector xpath='descendant-or-self::product-item' data='<product-item class="product-item pro...'>,
- <Selector xpath='descendant-or-self::product-item' data='<product-item class="product-item " r...'>,
- <Selector xpath='descendant-or-self::product-item' data='<product-item class="product-item " r...'>,
- <Selector xpath='descendant-or-self::product-item' data='<product-item class="product-item " r...'>]
+[<Selector xpath="descendant-or-self::div[@class and contains(concat(' ', normalize-space(@class), ' '), ' listings-cards__list-item ')]" data='<div class="listings-cards__list-item...'>,
+ <Selector xpath="descendant-or-self::div[@class and contains(concat(' ', normalize-space(@class), ' '), ' listings-cards__list-item ')]" data='<div class="listings-cards__list-item...'>,
+ <Selector xpath="descendant-or-self::div[@class and contains(concat(' ', normalize-space(@class), ' '), ' listings-cards__list-item ')]" data='<div class="listings-cards__list-item...'>,
+ <Selector xpath="descendant-or-self::div[@class and contains(concat(' ', normalize-space(@class), ' '), ' listings-cards__list-item ')]" data='<div class="listings-cards__list-item...'>,
+ <Selector xpath="descendant-or-self::div[@class and contains(concat(' ', normalize-space(@class), ' '), ' listings-cards__list-item ')]" data='<div class="listings-cards__list-item...'>,
+ <Selector xpath="descendant-or-self::div[@class and contains(concat(' ', normalize-space(@class), ' '), ' listings-cards__list-item ')]" data='<div class="listings-cards__list-item...'>,
+ <Selector xpath="descendant-or-self::div[@class and contains(concat(' ', normalize-space(@class), ' '), ' listings-cards__list-item ')]" data='<div class="listings-cards__list-item...'>,
+ <Selector xpath="descendant-or-self::div[@class and contains(concat(' ', normalize-space(@class), ' '), ' listings-cards__list-item ')]" data='<div class="listings-cards__list-item...'>,
+ <Selector xpath="descendant-or-self::div[@class and contains(concat(' ', normalize-space(@class), ' '), ' listings-cards__list-item ')]" data='<div class="listings-cards__list-item...'>,
+ <Selector xpath="descendant-or-self::div[@class and contains(concat(' ', normalize-space(@class), ' '), ' listings-cards__list-item ')]" data='<div class="listings-cards__list-item...'>,
+ <Selector xpath="descendant-or-self::div[@class and contains(concat(' ', normalize-space(@class), ' '), ' listings-cards__list-item ')]" data='<div class="listings-cards__list-item...'>,
+ <Selector xpath="descendant-or-self::div[@class and contains(concat(' ', normalize-space(@class), ' '), ' listings-cards__list-item ')]" data='<div class="listings-cards__list-item...'>]
 
-In [4]: 
+In [4]:  
 ```
 
-#### Get First Product
+#### Get First Apartement
 
-To just get the first product we use `.get()` appended to the end of the command.
+To just get the first apartement we use `.get()` appended to the end of the command.
 
-`response.css('product-item').get()`
+`response.css('div.listings-cards__list-item').get()`
 
 This returns all the HTML in this node of the DOM tree.
 
 ```css
-In [4]: response.css('product-item').get()
-Out[4]: '<product-item class="product-item " reveal><div class="product-item__image-wrapper product-item__image-wrapper--multiple"><div class="product-item__label-list label-list"><span class="label label--custom">New</span></div><a href="/products/100-dark-hot-chocolate-flakes" class="product-item__aspect-ratio aspect-ratio aspect-ratio--square" style="padding-bottom: 100.0%; --aspect-ratio: 1.0">\n 
+In [4]: response.css('div.listings-cards__list-item').get()
+Out[4]: '<div class="listings-cards__list-item "><div class="listing-card listing-card--tab listing-card--has-contact listing-card--has-content listing-card--priority listing-card--priority-gold listing-card--highlight-placeholder">
 ...
 ```
 
-#### Get All Products
+#### Get All Apartments
 
-Now that we have found the DOM node that contains the product items, we will get all of them and save this data into a response variable and loop through the items and extract the data we need.
+Now that we have found the DOM node that contains the apartment items, we will get all of them and save this data into a response variable and loop through the items and extract the data we need.
 
 So can do this with the following command.
 
 ```
-In [5]: products = response.css('product-item')
+In [5]: apartments = response.css('div.listings-cards__list-item')
 ```
 
-The products variable, is now an list of all the products on the page.
+The apartments variable, is now an list of all the apartments on the page.
 
-To check the length of the products variable we can see how many products are there.
+To check the length of the apartments variable we can see how many apartments are there.
 
-`len(products)`
+`len(apartments)`
 
 Here is the output:
 
 ```css
-In [6]: len(products)
-Out[6]: 24
+In [6]: len(apartments)
+Out[6]: 12
 
 ```
 
-#### Extract Product Details
+#### Extract Apartments Details
 
-Now lets extract the  **name** , **price** and **url** of each product from the list of products.
+Now lets extract the **title** , **adress**, **price** and **number of room** of each apartment from the list of apartments.
 
-The products variable is a list of products. When we update our spider code, we will loop through this list, however, to find the correct selectors we will test the CSS selectors on the first element of the list `products[0]`.
+The apartments variable is a list of apartments. When we update our spider code, we will loop through this list, however, to find the correct selectors we will test the CSS selectors on the first element of the list `apartment = apartments[0]`.
 
-##### Single Product - Get Single Product
+##### Single Apartment - Get Single apartment
 
-`In [7]: product = products[0]`
+`apartment = apartments[0]`
 
-##### Name - The product name can be found with
+##### Title - The apartment title can be found with
 
-`product.css('a.product-item-meta__title::tex').get()`
+`apartment.css('div.listing-card__header__title::text').get()`
+
+You can see that the data returned for the title has lots of extra HTML. We'll get rid of this in the next step.
 
 ```css
-In [8]: product.css('a.product-item-meta__title::text').get()
-Out[8]: '100% Dark Hot Chocolate Flakes'
+In [9]: apartment.css('div.listing-card__header__title::text').get()
+Out[9]: '\nAppartements KALIA - Zone de captage\n'
 ```
 
-##### Price - The product price can be found with
+To remove the extra div tags from our title we can use the `.replace()` method. The replace method can be useful when we need to clean up data.
+
+Here we're going to replace the `<div>` sections with empty quotes `''`:
 
 ```css
-product.css('span.price').get()
-```
-
-You can see that the data returned for the price has lots of extra HTML. We'll get rid of this in the next step.
-
-```css
-In [9]: product.css('span.price').get()
-Out[9]: '<span class="price">\n              <span class="visually-hidden">Sale price</span>£9.95</span>'
-```
-
-To remove the extra span tags from our price we can use the `.replace()` method. The replace method can be useful when we need to clean up data.
-
-Here we're going to replace the `<span>` sections with empty quotes `''`:
-
-```css
-product.css('span.price').get().replace(''<span class="price">\n              <span class="visually-hidden">Sale price</span>£9.95</span>', '').replace('</span', '')
+apartment.css('div.listing-card__header__title::text').get().replace('\n', '')
 ```
 
 ```css
-In [13]: product.css('span.price').get().replace('<span class="price">\n              <span class="visually-hidden">Sale price</span>', '').replace('</span>', '')
-Out[13]: '£9.95'
+In [10]: apartment.css('div.listing-card__header__title::text').get().replace('\n', '')
+Out[10]: 'Appartements KALIA - Zone de captage'
+
+In [11]: 
 ```
 
-**Product URL** - Next lets see how we can extract the product url for each individual product. To do that we can use the attrib function on the end of
+##### Adress- The apartment adress can be found with
 
 ```css
-product.css('div.product-item-meta a').attrib['href']
+apartment.css('div.listing-card__header__location::text').get()
+```
+
+You can see that the data returned for the title has lots of extra HTML. We'll get rid of this in the next step.
+
+```css
+In [12]: apartment.css('div.listing-card__header__location::text').get()
+Out[12]: '\nZone de captage,\nDakar\n'
+```
+
+We will remove the div tags from our address as for the title with the `.replace()` method.
+
+```css
+apartment.css('div.listing-card__header__location::text').get().replace('\n', ''
 ```
 
 ```css
-In [14]: product.css('div.product-item-meta a').attrib['href']
-Out[14]: '/products/100-dark-hot-chocolate-flakes'
+In [13]: apartment.css('div.listing-card__header__location::text').get().replace('\n', ''
+    ...: )
+Out[13]: 'Zone de captage,Dakar'
+```
+
+###### Price: the apartment price can be found with
+
+`apartment.css('span.listing-card__price__value::text').get()`
+
+```apache
+In [16]: apartment.css('span.listing-card__price__value::text').get()
+Out[16]: '\n500\u202f000 F Cfa\n'
+```
+
+We will also remove the div tags
+
+```apache
+In [19]: apartment.css('span.listing-card__price__value::text').get().replace('\n', '').r
+    ...: eplace('\u202f', '').replace(' F Cfa', '')
+Out[19]: '500000'
+```
+
+###### Number_of_room: the apartment number_of_room can be found with
+
+`apartment.css('div.listing-card__header__tags::text').get()`
+
+We will also remove thre div tags 😕. It's tiring but hey it's the only solution I've found for the moment.
+
+```apache
+In [28]: apartment.css('div.listing-card__header__tags').get().replace('<div class="listi
+    ...: ng-card__header__tags"><span class="listing-card__header__tags__item listing-car
+    ...: d__header__tags__item--no-of-bedrooms listing-card__header__tags__item--no-of-be
+    ...: drooms_3">', '').replace('</span><span class="listing-card__header__tags__item l
+    ...: isting-card__header__tags__item--square-metres listing-card__header__tags__item-
+    ...: -square-metres_100">', '').replace('</span></div>', '')
+Out[28]: '3 chambre100 m²'
 ```
 
 #### Updated Spider
@@ -488,9 +520,9 @@ class ChocolatespiderSpider(scrapy.Spider):
 
 Here, our spider does the following steps:
 
-1. Makes a request to `'https://www.chocolate.co.uk/collections/all'`.
-2. When it gets a response, it extracts all the products from the page using `products = response.css('product-item')`.
-3. Loops through each product, and extracts the  **name** , **price** and **url** using the CSS selectors we created.
+1. Makes a request to `'"https://www.expat-dakar.com/appartements-a-louer'`.
+2. When it gets a response, it extracts all the products from the page using `apartments = response.css('div.listings-cards__list-item')`.
+3. Loops through each apartment, and extracts the  **title** , **adress**, **price** and **number_of_room** using the CSS selectors we created.
 4. Yields these items so they can be stored in a CSV, JSON, DB, etc.
 
 ### Step 5: Running Our Spider
@@ -498,30 +530,29 @@ Here, our spider does the following steps:
 Now that we have a spider we can run it by going to the top level in our scrapy project and running the following command.
 
 ```apache
-scrapy crawl chocolatespider
+scrapy crawl apartmentspider
 ```
 
 It will run, and you should see the logs on your screen. Here are the final stats:
 
 ```css
-2023-03-06 16:40:41 [scrapy.statscollectors] INFO: Dumping Scrapy stats:
-{'downloader/request_bytes': 960,
+2023-03-07 13:11:11 [scrapy.statscollectors] INFO: Dumping Scrapy stats:
+{'downloader/request_bytes': 468,
  'downloader/request_count': 2,
  'downloader/request_method_count/GET': 2,
- 'downloader/response_bytes': 45614,
+ 'downloader/response_bytes': 22309,
  'downloader/response_count': 2,
  'downloader/response_status_count/200': 2,
- 'elapsed_time_seconds': 0.828502,
- 'feedexport/success_count/FileFeedStorage': 1,
+ 'elapsed_time_seconds': 0.983364,
  'finish_reason': 'finished',
- 'finish_time': datetime.datetime(2023, 3, 6, 16, 40, 41, 823425),
- 'httpcompression/response_bytes': 222310,
+ 'finish_time': datetime.datetime(2023, 3, 7, 13, 11, 11, 48146),
+ 'httpcompression/response_bytes': 171794,
  'httpcompression/response_count': 2,
- 'item_scraped_count': 24,
- 'log_count/DEBUG': 29,
- 'log_count/INFO': 11,
- 'memusage/max': 57987072,
- 'memusage/startup': 57982976,
+ 'item_scraped_count': 12,
+ 'log_count/DEBUG': 17,
+ 'log_count/INFO': 10,
+ 'memusage/max': 57683968,
+ 'memusage/startup': 57683968,
  'response_received_count': 2,
  'robotstxt/request_count': 1,
  'robotstxt/response_count': 1,
@@ -530,59 +561,137 @@ It will run, and you should see the logs on your screen. Here are the final stat
  'scheduler/dequeued/memory': 1,
  'scheduler/enqueued': 1,
  'scheduler/enqueued/memory': 1,
- 'start_time': datetime.datetime(2023, 3, 6, 16, 40, 40, 994923)}
-2023-03-06 16:40:41 [scrapy.core.engine] INFO: Spider closed (finished)
+ 'start_time': datetime.datetime(2023, 3, 7, 13, 11, 10, 64782)}
 ```
 
 We can see from the above stats that our spider scraped 24 items:
 
-`'item_scraped_count': 24`
+`'item_scraped_count': 12`
 
-If we want to save the data to a JSON file we can use the `-0` option, followed by the name of file.
+If we want to save the data to a JSON file we can use the `-O` option, followed by the name of file.
 
-`scrapy crawl chocolatespider -0 myscrapeddata.json`
+`scrapy crawl apartmentspider -O myscrapeddata.json`
 
 Then a json file will be created in your project and that will contain your collection.
 
 ```css
 [
-{"name": "100% Dark Hot Chocolate Flakes", "price": "£9.95", "url": "/products/100-dark-hot-chocolate-flakes"},
-{"name": "2.5kg Bulk 41% Milk Hot Chocolate Drops", "price": "£45.00", "url": "/products/2-5kg-bulk-of-our-41-milk-hot-chocolate-drops"},
-{"name": "2.5kg Bulk 61% Dark Hot Chocolate Drops", "price": "£45.00", "url": "/products/2-5kg-of-our-best-selling-61-dark-hot-chocolate-drops"},
-{"name": "41% Milk Hot Chocolate Drops", "price": "£8.75", "url": "/products/41-colombian-milk-hot-chocolate-drops"},
-{"name": "61% Dark Hot Chocolate Drops", "price": "£8.75", "url": "/products/62-dark-hot-chocolate"},
-{"name": "70% Dark Hot Chocolate Flakes", "price": "£9.95", "url": "/products/70-dark-hot-chocolate-flakes"},
-{"name": "Almost Perfect", "price": "From £1.50\n", "url": "/products/almost-perfect"},
-{"name": "Assorted Chocolate Malt Balls", "price": "£9.00", "url": "/products/assorted-chocolate-malt-balls"},
-{"name": "Blonde Caramel", "price": "£5.00", "url": "/products/blonde-caramel-chocolate-bar"},
-{"name": "Blonde Chocolate Honeycomb", "price": "£9.00", "url": "/products/blonde-chocolate-honeycomb"},
-{"name": "Blonde Chocolate Honeycomb - Bag", "price": "£8.50", "url": "/products/blonde-chocolate-sea-salt-honeycomb"},
-{"name": "Blonde Chocolate Malt Balls", "price": "£9.00", "url": "/products/blonde-chocolate-malt-balls"},
-{"name": "Blonde Chocolate Truffles", "price": "£19.95", "url": "/products/blonde-chocolate-truffles"},
-{"name": "Blonde Hot Chocolate Flakes", "price": "£9.95", "url": "/products/blonde-hot-chocolate-flakes"},
-{"name": "Bulk 41% Milk Hot Chocolate Drops 750 grams", "price": "£17.50", "url": "/products/bulk-41-milk-hot-chocolate-drops-750-grams"},
-{"name": "Bulk 61% Dark Hot Chocolate Drops 750 grams", "price": "£17.50", "url": "/products/750-gram-bulk-61-dark-hot-chocolate-drops"},
-{"name": "Caramelised Milk", "price": "£5.00", "url": "/products/caramelised-milk-chocolate-bar"},
-{"name": "Caramelised Milk Chocolate Tarte Tatin Chocolate Easter Egg", "price": "£29.95", "url": "/products/pre-order-toasted-sourdough-sea-salt-dark-chocolate-easter-egg"},
-{"name": "Chocolate Caramelised Pecan Nuts", "price": "£8.95", "url": "/products/chocolate-caramelised-pecan-nuts"},
-{"name": "Chocolate Celebration Hamper", "price": "£55.00", "url": "/products/celebration-hamper"},
-{"name": "Christmas Truffle Selection", "price": "£19.95", "url": "/products/pre-order-christmas-truffle-selection"},
-{"name": "Cinnamon Toast", "price": "£5.00", "url": "/products/cinnamon-toast-chocolate-bar"},
-{"name": "Coconut Easter Egg", "price": "£29.95", "url": "/products/coconut-easter-egg"},
-{"name": "Collection of 4 of our Best Selling Chocolate Malt Balls", "price": "£30.00", "url": "/products/collection-of-our-best-selling-chocolate-malt-balls"}
+{"title": "Appartements KALIA - Zone de captage", "adress": "Zone de captage,Dakar", "price": "500000", "number_of_room": null},
+{"title": "Appartement neufs de standing à louer mamelles", "adress": "Almadies,Dakar", "price": "1100000", "number_of_room": null},
+{"title": "Joli appartement à louer à ngor zone calme", "adress": "Ngor,Dakar ", "price": "650000", "number_of_room": null},
+{"title": "Almadies proche King Fahd Palace beau F3 haut standing", "adress": "Almadies,Dakar", "price": "1700000", "number_of_room": null},
+{"title": "VILLA NEUVE ET MODERNE DE R+2", "adress": "Sacré-cœur,Dakar", "price": "1600000", "number_of_room": null},
+{"title": "F2 A LOUER A LA CITE APIX", "adress": "Niague,Dakar", "price": "200000", "number_of_room": null},
+{"title": "Appartement à louer aux mamelles cité mbackiyou faye", "adress": "Mamelles,Dakar", "price": "650000", "number_of_room": null},
+{"title": "Appartement haut standing point e", "adress": "Point-e,Dakar", "price": "750000", "number_of_room": null},
+{"title": "Appartement F4 à sacré coeur 2", "adress": " Sacré-cœur,Dakar", "price": "500000", "number_of_room": null},
+{"title": "Grand appartement f5 de 300 m2 à louer au virage", "adress": "Virage,Dakar", "price": "1500000", "number_of_room": null},
+{"title": "Luxueux Appartements F2 et F3 à Hann Marinas", "adress": " Hann marinas,Dakar", "price": "500000", "number_of_room": null},
+{"title": "Exceptionnel appartement neuf aux Almadies", "adress": "Almadies,Dakar", "price": "2800000", "number_of_room": null}
 ]
 ```
 
 If we want to save the data to CSV file we can do so too.
 
-`scrapy crawl chocolatespider -O myscrapeddata.csv`
+`scrapy crawl apartmentspider -O myscrapeddata.csv`
 
 ### Step 6: Navigating to the "Next Page"
 
-So far the code is working great but we're only getting the products from the first page of the site, the url which we have listed in the start_url variable.
+So far the code is working great but we're only getting the apartments from the first page of the site, the url which we have listed in the start_url variable.
 
 So the next logical step is to go to the next page if there is one and scrape the item data from that too! So here's how we do that.
 
 First, lets open our Scrapy shell again, fetch the page and find the correct selector to get the **next page** button.
 
 `scrapy shell`
+
+Then fetch the page again.
+
+```css
+In [1]: fetch('https://www.expat-dakar.com/appartements-a-louer')
+```
+
+And then get the href attribute that contains the url to the next page.
+
+```css
+response.css('[rel="next"] ::attr(href)').get()
+```
+
+```css
+In [2]: response.css('[rel="next"] ::attr(href)').get()
+Out[2]: 'https://www.expat-dakar.com/appartements-a-louer?page=2'
+```
+
+Now, we just need to update our spider to request this page after it has parsed all items from a page.
+
+```css
+import scrapy
+
+
+class ApartmentspiderSpider(scrapy.Spider):
+    #the name of the spider
+    name = "apartmentspider"
+    allowed_domains = ["expat-dakar.com"]
+    #the url of the first page that we will start scraping
+    start_urls = ["https://www.expat-dakar.com/appartements-a-louer"]
+
+    def parse(self, response):
+        #here we are looping through the apartments and extracting the title, adress, price and number_of_room
+        apartments = response.css('div.listings-cards__list-item')
+        for apartment in apartments:
+            yield{
+                'title' : apartment.css('div.listing-card__header__title::text').get().replace('\n', ''),
+                'adress' : apartment.css('div.listing-card__header__location::text').get().replace('\n', ''),
+                'price' : apartment.css('span.listing-card__price__value::text').get().replace('\n', '').replace('\u202f', '').replace(' F Cfa', ''),
+                "number_of_room": apartment.css('div.listing-card__header__tags::text').get()
+                        
+            }
+    
+        next_page = response.css('[rel="next"] ::attr(href)').get()
+        if next_page is not None:
+            next_page_url = "https://www.expat-dakar.com/appartements-a-louer" + next_page
+            yield response.follow(next_page_url, callback =self.parse)
+    
+    
+    
+
+```
+
+Here we see that our spider now, finds the URL of the next page and if it isn't none it appends it to the base URL and makes another request.
+
+Now in our Scrapy stats we see that we have scraped 5 pages, and extracted 73 items:
+
+```css
+2023-03-06 23:11:33 [scrapy.statscollectors] INFO: Dumping Scrapy stats:
+{'downloader/request_bytes': 3509,
+ 'downloader/request_count': 5,
+ 'downloader/request_method_count/GET': 5,
+ 'downloader/response_bytes': 170647,
+ 'downloader/response_count': 5,
+ 'downloader/response_status_count/200': 5,
+ 'elapsed_time_seconds': 4.839079,
+ 'finish_reason': 'finished',
+ 'finish_time': datetime.datetime(2023, 3, 6, 23, 11, 33, 395120),
+ 'httpcompression/response_bytes': 853126,
+ 'httpcompression/response_count': 5,
+ 'item_scraped_count': 89,
+ 'log_count/DEBUG': 97,
+ 'log_count/INFO': 10,
+ 'memusage/max': 57798656,
+ 'memusage/startup': 57794560,
+ 'request_depth_max': 3,
+ 'response_received_count': 5,
+ 'robotstxt/request_count': 1,
+ 'robotstxt/response_count': 1,
+ 'robotstxt/response_status_count/200': 1,
+ 'scheduler/dequeued': 4,
+ 'scheduler/dequeued/memory': 4,
+ 'scheduler/enqueued': 4,
+ 'scheduler/enqueued/memory': 4,
+ 'start_time': datetime.datetime(2023, 3, 6, 23, 11, 28, 556041)}
+2023-03-06 23:11:33 [scrapy.core.engine] INFO: Spider closed (finished)
+```
+
+## Next Steps
+
+In the second part, we will work on data cleaning. Web data can sometimes be very messy, unstructured, and have many edge cases so will make our spider robust to these edge cases, using articles, Itemloaders and Item Pipelines.
