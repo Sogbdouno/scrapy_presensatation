@@ -3,22 +3,22 @@
 Content
 - [Introduction](#introduction)
 - [Presentation](#presentation)
-    - [What Is Crapy?](#what-is-crapy)
-    - [Data Flow From A Scrapy](#data-flow-from-a-scrapy)
-    - [Why \& When Should You Use Scrapy?](#why--when-should-you-use-scrapy)
-    - [Starting](#starting)
-    - [Step 1: Setup your Python Environment](#step-1-setup-your-python-environment)
+  - [What Is Crapy?](#what-is-crapy)
+  - [Data Flow From A Scrapy](#data-flow-from-a-scrapy)
+  - [Why \& When Should You Use Scrapy?](#why--when-should-you-use-scrapy)
+- [Starting](#starting)
+  - [Step 1: Setup your Python Environment](#step-1-setup-your-python-environment)
           - [Create the virtual environment](#create-the-virtual-environment)
           - [Activate the virtual environment](#activate-the-virtual-environment)
-          - [Install Crapy in your virtual environment](#install-crapy-in-your-virtual-environment)
-    - [Step 2: Setup Our Scrapy Project](#step-2-setup-our-scrapy-project)
+  - [Install Crapy in your virtual environment](#install-crapy-in-your-virtual-environment)
+  - [Step 2: Setup Our Scrapy Project](#step-2-setup-our-scrapy-project)
           - [Creating Our Scrapy Project](#creating-our-scrapy-project)
           - [Understanding Scrapy Project Structure](#understanding-scrapy-project-structure)
     - [Step 3: Creating Our Spider](#step-3-creating-our-spider)
     - [Step 4: Update Start Urls](#step-4-update-start-urls)
-    - [Step 5: Scrapy Shell: Finding Our Css Selectors](#step-5-scrapy-shell-finding-our-css-selectors)
-        - [Fetch The Page](#fetch-the-page)
-    - [Find Product CSS Selectors](#find-product-css-selectors)
+  - [Step 5: Scrapy Shell: Finding Our Css Selectors](#step-5-scrapy-shell-finding-our-css-selectors)
+    - [Fetch The Page](#fetch-the-page)
+    - [Find Apartments CSS Selectors](#find-apartments-css-selectors)
       - [Get First Apartement](#get-first-apartement)
       - [Get All Apartments](#get-all-apartments)
       - [Extract Apartments Details](#extract-apartments-details)
@@ -27,12 +27,12 @@ Content
         - [Adress- The apartment adress can be found with](#adress--the-apartment-adress-can-be-found-with)
           - [Price: the apartment price can be found with](#price-the-apartment-price-can-be-found-with)
           - [Number\_of\_room: the apartment number\_of\_room can be found with](#number_of_room-the-apartment-number_of_room-can-be-found-with)
-      - [Updated Spider](#updated-spider)
-    - [Step 6: Running Our Spider](#step-6-running-our-spider)
-    - [Step 7: Navigating to the "Next Page"](#step-7-navigating-to-the-next-page)
-  - [Next Steps](#next-steps)
+    - [Updated Spider](#updated-spider)
+  - [Step 6: Running Our Spider](#step-6-running-our-spider)
+  - [Step 7: Navigating to the "Next Page"](#step-7-navigating-to-the-next-page)
+- [Next Steps](#next-steps)
 - [Cleaning Dirty Data \& Dealing With Edge Cases](#cleaning-dirty-data--dealing-with-edge-cases)
-    - [Organizing Our Data With Scrapy Items](#organizing-our-data-with-scrapy-items)
+  - [Organizing Our Data With Scrapy Items](#organizing-our-data-with-scrapy-items)
     - [Pre Processing Data With Scrapy Item Loaders](#pre-processing-data-with-scrapy-item-loaders)
     - [Processing Our Data With Scrapy Item Pipelines](#processing-our-data-with-scrapy-item-pipelines)
         - [Converting The Price](#converting-the-price)
@@ -51,17 +51,15 @@ However there are several libraries allowing to quickly make web scraping hence 
 
 # Presentation
 
-![](img/scrapy_architecture.jpeg)
-
-### What Is Crapy?
+## What Is Crapy?
 
 Developed by the co-founders of [Zyte](https://www.zyte.com/?rfsn=6335521.8097b3https://), Pablo Hoffman and Shane Evans, [Scrapy](https://scrapy.org/https://) is a python framework specifically for web scraping.
 
 Using Scrapy you can easily build highly scalable scrapers that will retrieve a pages HTML, parse and process the data, and store it the file format and location of your choice.
 
-### Data Flow From A Scrapy
+## Data Flow From A Scrapy
 ![](img/scrapy_architecture.jpeg)
-### Why & When Should You Use Scrapy?
+## Why & When Should You Use Scrapy?
 
 Although, there are other Python libraries also used for web scraping:
 
@@ -83,9 +81,9 @@ You just need to customise it in your settings file or add in one of the many Sc
 
 The learning curve is initially steeper than using the Python Requests/BeautifulSoup combo, however, it will save you a lot of time in the long run when deploying production scrapers and scraping at scale.
 
-### Starting
+# Starting
 
-### Step 1: Setup your Python Environment
+## Step 1: Setup your Python Environment
 
 Before installing scrapy in your system the first thing to do is to create a virtual environment.
 
@@ -129,7 +127,7 @@ Now that our virtual environment is created in the crapy_project folder, we will
   (env) 192:env sogbedouno$
   ```
 
-###### Install Crapy in your virtual environment
+## Install Crapy in your virtual environment
 
 `(env) 192:env sogbedouno$ pip install scrapy`
 
@@ -179,7 +177,7 @@ w3lib              2.1.1
 zope.interface     5.5.2
 ```
 
-### Step 2: Setup Our Scrapy Project
+## Step 2: Setup Our Scrapy Project
 
 Now that we have our environment setup, we can get onto the fun stuff. Building our first Scrapy spider!.
 
@@ -296,7 +294,7 @@ class ApartmentspiderSpider(scrapy.Spider):
 
 Next, we need to create our CSS selectors to parse the data we want from the page. To do this, we will use Scrapy Shell.
 
-### Step 5: Scrapy Shell: Finding Our Css Selectors
+## Step 5: Scrapy Shell: Finding Our Css Selectors
 
 To extract data from an HTML page, we must use XPath or CSS selectors to tell Scrapy where the data is in the page. The XPath and CSS selectors are like small maps for Scrapy to navigate the DOM tree and find the location of the data we need. In this article, we will use CSS selectors to analyze page data. And to help us create these CSS selectors, we will use Scrapy Shell.
 
@@ -337,7 +335,7 @@ In [1]:
 In [1]: 
 ```
 
-##### Fetch The Page
+### Fetch The Page
 
 To create our CSS selectors we will be testing them on the following page.
 
@@ -364,7 +362,7 @@ In [2]: response
 Out[2]: <200 https://www.expat-dakar.com/appartements-a-louer>
 ```
 
-### Find Product CSS Selectors
+### Find Apartments CSS Selectors
 
 To find the correct CSS selectors to parse the product details we will first open the page in our browsers DevTools.
 
@@ -537,7 +535,7 @@ In [28]: apartment.css('div.listing-card__header__tags').get().replace('<div cla
 Out[28]: '3 chambre100 m²'
 ```
 
-#### Updated Spider
+### Updated Spider
 
 Now, that we've found the correct CSS selectors let's update our spider. Exit Scrapy shell with the `exit()` command.
 
@@ -573,7 +571,7 @@ Here, our spider does the following steps:
 3. Loops through each apartment, and extracts the  **title** , **adress**, **price** and **number_of_room** using the CSS selectors we created.
 4. Yields these items so they can be stored in a CSV, JSON, DB, etc.
 
-### Step 6: Running Our Spider
+## Step 6: Running Our Spider
 
 Now that we have a spider we can run it by going to the top level in our scrapy project and running the following command.
 
@@ -643,7 +641,7 @@ If we want to save the data to CSV file we can do so too.
 
 `scrapy crawl apartmentspider -O myscrapeddata.csv`
 
-### Step 7: Navigating to the "Next Page"
+## Step 7: Navigating to the "Next Page"
 
 So far the code is working great but we're only getting the apartments from the first page of the site, the url which we have listed in the start_url variable.
 
@@ -736,7 +734,7 @@ Now in our Scrapy stats we see that we have scraped 5 pages, and extracted 73 it
 2023-03-06 23:11:33 [scrapy.core.engine] INFO: Spider closed (finished)
 ```
 
-## Next Steps
+# Next Steps
 
 In the second part, we will work on data cleaning. Web data can sometimes be very messy, unstructured, and have many edge cases so will make our spider robust to these edge cases, using articles, Itemloaders and Item Pipelines.
 
@@ -746,7 +744,7 @@ Earlier we learned how to build a basic scrapy spider and have it retrieve some 
 
 Web data can be messy, unstructured, and have lots of edge cases. So it is important that your Scrapy spiders are robust and deal with messy data.
 
-### Organizing Our Data With Scrapy Items
+## Organizing Our Data With Scrapy Items
 
 Up until now we've been yielding our data in a dictionary. However, the preferred way of yielding data in Scrapy is using its [**Item**](https://docs.scrapy.org/en/latest/topics/items.html#:~:text=The%20main%20goal%20in%20scraping,supports%20multiple%20types%20of%20items.) functionality.
 
